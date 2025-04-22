@@ -5,6 +5,7 @@ vector<Item> items;
 AssetLoader assetLoader;
 char fpsText[32];
 Item *picked = nullptr;
+Background background;
 
 void AddRandomItems(int qta);
 void Draw();
@@ -16,21 +17,22 @@ int main()
 
     const Color bg = {119, 119, 119, 255};
 
-    constexpr int screenWidth = 800;
-    constexpr int screenHeight = 600;
+    constexpr int screenWidth = 1920;
+    constexpr int screenHeight = 1080;
 
     InitWindow(screenWidth, screenHeight, "My first RAYLIB program!");
 
     assetLoader.loadTextures();
     assetLoader.loadSounds();
 
-    AddRandomItems(80);
+    background.texture = assetLoader.getTexture("stone");
+    background.scale = 5;
+
+    AddRandomItems(100);
 
     while (!WindowShouldClose())
     {
         Update();
-
-        int currentFps = GetFPS();
 
         // Drawing
         BeginDrawing();
@@ -62,7 +64,7 @@ void AddRandomItems(int qta)
 
 void Draw()
 {
-    DrawText(fpsText, 10, 10, 20, WHITE);
+    background.Draw();
 
     for (int i = 0; i < (int)items.size(); i++)
     {
@@ -72,6 +74,11 @@ void Draw()
     {
         items.at(i).Draw();
     }
+
+    // FPS
+    int fps = GetFPS();
+    sprintf(fpsText, "FPS: %d", fps);
+    DrawText(fpsText, 10, 10, 20, WHITE);
 }
 
 void Update()

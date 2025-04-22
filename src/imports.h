@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <dirent.h>
 #include <cstdlib>
 
 #include <raylib.h>
@@ -18,6 +17,7 @@
 #include "assetLoader.h"
 #include "utils.h"
 #include "raymath.h"
+#include "background.h"
 
 using namespace std;
 

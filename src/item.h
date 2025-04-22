@@ -2,6 +2,9 @@
 #include "imports.h"
 #include "utils.h"
 
+#define REGULAR_SCALE 3.1f
+#define BIG_SCALE 4.f
+
 class Item
 {
 public:
@@ -30,9 +33,9 @@ Item::Item(string type)
     this->speed.x = 0;
     this->speed.y = 0;
     this->angle = 0;
-    this->scale = 2;
+    this->scale = REGULAR_SCALE;
     this->targetAngle = 0;
-    this->targetScale = 2;
+    this->targetScale = REGULAR_SCALE;
 
     this->texture = assetLoader.getTexture(type);
 }
@@ -42,14 +45,14 @@ void Item::Update(bool picked)
     // Vai alla posizione del mouse
     if (picked)
     {
-        targetScale = 2.5f;
+        targetScale = BIG_SCALE;
         Vector2 mousePosition = GetMousePosition();
         Vector2 difference = Vector2Subtract(mousePosition, position);
         position = Vector2Add(position, Vector2Scale(difference, 15.0f * GetFrameTime()));
     }
     else
     {
-        targetScale = 2;
+        targetScale = REGULAR_SCALE;
     }
 
     // angle += 10 * GetFrameTime();

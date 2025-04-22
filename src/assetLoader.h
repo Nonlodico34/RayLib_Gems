@@ -33,6 +33,8 @@ void AssetLoader::loadTextures()
     texturesMap["diamond"] = LoadTexture("assets/diamond.png");
     texturesMap["amethyst"] = LoadTexture("assets/amethyst.png");
     texturesMap["rose_quartz"] = LoadTexture("assets/rose_quartz.png");
+
+    texturesMap["stone"] = LoadTexture("assets/stone.png");
 }
 
 void AssetLoader::loadSounds()
