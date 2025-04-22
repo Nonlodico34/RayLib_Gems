@@ -1,15 +1,17 @@
-#include "imports.h"
+#include "modules/imports.h"
 #include "item.h"
 
-vector<Item> items;
+vector<Item *> items;
 AssetLoader assetLoader;
 char fpsText[32];
 Item *picked = nullptr;
 Background background;
+VerletSolver verletSolver;
 
 void AddRandomItems(int qta);
 void Draw();
 void Update();
+void Cleanup();
 
 int main()
 {
@@ -21,6 +23,7 @@ int main()
     constexpr int screenHeight = 1080;
 
     InitWindow(screenWidth, screenHeight, "My first RAYLIB program!");
+    SetTargetFPS(60);
 
     assetLoader.loadTextures();
     assetLoader.loadSounds();
@@ -28,13 +31,14 @@ int main()
     background.texture = assetLoader.getTexture("stone");
     background.scale = 5;
 
+    verletSolver.constraint = {0.f, 0.f, screenWidth, screenHeight};
+
     AddRandomItems(100);
 
     while (!WindowShouldClose())
     {
         Update();
 
-        // Drawing
         BeginDrawing();
         ClearBackground(bg);
         Draw();
@@ -42,6 +46,7 @@ int main()
     }
 
     CloseWindow();
+    Cleanup();
 
     return 0;
 }
@@ -52,13 +57,15 @@ void AddRandomItems(int qta)
         "ruby", "amber", "topaz", "emerald", "jade",
         "sapphire", "diamond", "amethyst", "rose_quartz"};
 
-    srand(static_cast<unsigned>(time(nullptr))); // Inizializzazione rand
+    srand(static_cast<unsigned>(time(nullptr)));
 
     for (int i = 0; i < qta; i++)
     {
         int index = rand() % gemTypes.size();
-        Item item(gemTypes[index]);
+        Item *item = new Item(gemTypes[index]);
         items.push_back(item);
+
+        verletSolver.AddObject(item->verlet);
     }
 }
 
@@ -68,14 +75,13 @@ void Draw()
 
     for (int i = 0; i < (int)items.size(); i++)
     {
-        items.at(i).DrawShadow();
+        items.at(i)->DrawShadow();
     }
     for (int i = 0; i < (int)items.size(); i++)
     {
-        items.at(i).Draw();
+        items.at(i)->Draw();
     }
 
-    // FPS
     int fps = GetFPS();
     sprintf(fpsText, "FPS: %d", fps);
     DrawText(fpsText, 10, 10, 20, WHITE);
@@ -83,18 +89,20 @@ void Draw()
 
 void Update()
 {
+    background.offset.x += 2;
+    background.offset.y += 2;
+
     if (IsMouseButtonDown(0) && picked == nullptr)
     {
         for (int i = (int)items.size() - 1; i >= 0; --i)
         {
-            if (CheckCollisionPointCircle(GetMousePosition(), items.at(i).position, items.at(i).texture->height * items.at(i).scale * 0.5f))
+            if (CheckCollisionPointCircle(GetMousePosition(), items.at(i)->position, items.at(i)->texture->height * items.at(i)->scale * 0.5f))
             {
-                // Sposta in cima al vettore
-                Item selected = items.at(i);
+                Item *selected = items.at(i);
                 items.erase(items.begin() + i);
                 items.push_back(selected);
 
-                picked = &items.back();
+                picked = items.back();
                 picked->PickAnimation();
                 break;
             }
@@ -108,6 +116,17 @@ void Update()
 
     for (int i = 0; i < (int)items.size(); i++)
     {
-        items.at(i).Update(&items.at(i) == picked);
+        items.at(i)->Update(items.at(i) == picked);
     }
+
+    verletSolver.Update();
+}
+
+void Cleanup()
+{
+    for (auto &item : items)
+    {
+        delete item;
+    }
+    items.clear();
 }

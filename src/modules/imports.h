@@ -18,6 +18,8 @@
 #include "utils.h"
 #include "raymath.h"
 #include "background.h"
+#include "verletObject.h"
+#include "verletSolver.h"
 
 using namespace std;
 

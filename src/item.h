@@ -1,5 +1,5 @@
 #pragma once
-#include "imports.h"
+#include "modules/imports.h"
 #include "utils.h"
 
 #define REGULAR_SCALE 3.1f
@@ -23,6 +23,7 @@ public:
     float scale;
     float targetAngle;
     float targetScale;
+    VerletObject *verlet;
 };
 
 Item::Item(string type)
@@ -36,8 +37,8 @@ Item::Item(string type)
     this->scale = REGULAR_SCALE;
     this->targetAngle = 0;
     this->targetScale = REGULAR_SCALE;
-
     this->texture = assetLoader.getTexture(type);
+    this->verlet = new VerletObject(position, this->texture->width * REGULAR_SCALE / 2.f);
 }
 
 void Item::Update(bool picked)
@@ -45,6 +46,7 @@ void Item::Update(bool picked)
     // Vai alla posizione del mouse
     if (picked)
     {
+        verlet->active = false;
         targetScale = BIG_SCALE;
         Vector2 mousePosition = GetMousePosition();
         Vector2 difference = Vector2Subtract(mousePosition, position);
@@ -52,7 +54,13 @@ void Item::Update(bool picked)
     }
     else
     {
+        if (!verlet->active)
+        {
+            verlet->active = true;
+            verlet->Reset(position);
+        }
         targetScale = REGULAR_SCALE;
+        position = verlet->position;
     }
 
     // angle += 10 * GetFrameTime();
