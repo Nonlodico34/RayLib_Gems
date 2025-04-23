@@ -9,6 +9,7 @@ public:
     Vector2 position;
     float radius;
     bool active;
+    bool fixed; // fixed objects do not move, but they can be connected to
 
 private:
     Vector2 position_old;
@@ -29,6 +30,7 @@ VerletObject::VerletObject()
     this->acceleration = {0, 0};
     this->radius = 100;
     this->active = true;
+    this->fixed = false;
 }
 
 VerletObject::VerletObject(Vector2 pos, float radius)
@@ -38,10 +40,14 @@ VerletObject::VerletObject(Vector2 pos, float radius)
     this->acceleration = {0, 0};
     this->radius = radius;
     this->active = true;
+    this->fixed = false;
 }
 
 void VerletObject::UpdatePosition(float dt)
 {
+    if (fixed)
+        return;
+
     Vector2 velocity = position - position_old;
     position_old = position;
     velocity *= DRAG;
@@ -51,7 +57,8 @@ void VerletObject::UpdatePosition(float dt)
 
 void VerletObject::Accelerate(Vector2 acc)
 {
-    acceleration += acc;
+    if (!fixed)
+        acceleration += acc;
 }
 
 void VerletObject::Reset(Vector2 pos)

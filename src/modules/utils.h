@@ -80,7 +80,12 @@ Vector2 RotatePoint(Vector2 point, Vector2 center, float angleDeg)
     return point;
 }
 
-int Random(int min, int max)
+int RandomI(int min, int max)
 {
     return (min + (rand() % ((max - min) + 1)));
+}
+
+float RandomF(float min, float max)
+{
+    return min + ((float)rand() / RAND_MAX) * (max - min);
 }

@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <cstdlib>
+#include <cmath>
+#include <functional>
 
 #include <raylib.h>
 
@@ -20,6 +22,7 @@
 #include "background.h"
 #include "verletObject.h"
 #include "verletSolver.h"
+#include "particle.h"
 
 using namespace std;
 

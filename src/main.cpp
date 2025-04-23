@@ -1,5 +1,6 @@
 #include "modules/imports.h"
 #include "item.h"
+#include "spark.h"
 
 vector<Item *> items;
 AssetLoader assetLoader;
@@ -7,6 +8,8 @@ char fpsText[32];
 Item *picked = nullptr;
 Background background;
 VerletSolver verletSolver;
+VerletObject *mouseCollider;
+vector<Spark *> sparks;
 
 void AddRandomItems(int qta);
 void Draw();
@@ -32,6 +35,9 @@ int main()
     background.scale = 5;
 
     verletSolver.constraint = {0.f, 0.f, screenWidth, screenHeight};
+    mouseCollider = new VerletObject({0, 0}, 20);
+    mouseCollider->fixed = true;
+    verletSolver.AddObject(mouseCollider);
 
     AddRandomItems(100);
 
@@ -85,13 +91,27 @@ void Draw()
     int fps = GetFPS();
     sprintf(fpsText, "FPS: %d", fps);
     DrawText(fpsText, 10, 10, 20, WHITE);
+
+    for (int i = 0; i < (int)sparks.size(); i++)
+    {
+        sparks.at(i)->Draw();
+    }
 }
 
 void Update()
 {
-    background.offset.x += 2;
-    background.offset.y += 2;
+    // PUSH
+    if (IsMouseButtonDown(1))
+    {
+        mouseCollider->position = GetMousePosition();
+        mouseCollider->active = true;
+    }
+    else
+    {
+        mouseCollider->active = false;
+    }
 
+    // DRAG
     if (IsMouseButtonDown(0) && picked == nullptr)
     {
         for (int i = (int)items.size() - 1; i >= 0; --i)
@@ -114,12 +134,27 @@ void Update()
         picked = nullptr;
     }
 
+    // UPDATE : ITEMS
     for (int i = 0; i < (int)items.size(); i++)
     {
-        items.at(i)->Update(items.at(i) == picked);
+        items.at(i)->Update(items.at(i) == picked, sparks);
     }
 
     verletSolver.Update();
+
+    // UPDATE : SPARKS
+    for (int i = 0; i < (int)sparks.size(); i++)
+    {
+        sparks.at(i)->Update();
+    }
+    for (int i = (int)sparks.size() - 1; i >= 0; --i)
+    {
+        if (!sparks[i]->IsAlive())
+        {
+            delete sparks[i];                 // Elimina la particella
+            sparks.erase(sparks.begin() + i); // Rimuovila dalla lista
+        }
+    }
 }
 
 void Cleanup()

@@ -6,7 +6,7 @@
 class VerletSolver
 {
 public:
-    std::vector<VerletObject *> objects;
+    vector<VerletObject *> objects;
     Vector2 gravity;
     Rectangle constraint;
     int subSteps;
@@ -97,8 +97,24 @@ void VerletSolver::solveCollisions()
 
                 overlap *= 1.f / REPULSION;
 
-                obj1->position = Vector2Add(obj1->position, Vector2Scale(n, overlap / 2));
-                obj2->position = Vector2Subtract(obj2->position, Vector2Scale(n, overlap / 2));
+                if (obj1->fixed && obj2->fixed)
+                {
+                    // entrambi fissi, non si fa nulla
+                    continue;
+                }
+                else if (obj1->fixed)
+                {
+                    obj2->position = Vector2Subtract(obj2->position, Vector2Scale(n, overlap));
+                }
+                else if (obj2->fixed)
+                {
+                    obj1->position = Vector2Add(obj1->position, Vector2Scale(n, overlap));
+                }
+                else
+                {
+                    obj1->position = Vector2Add(obj1->position, Vector2Scale(n, overlap / 2));
+                    obj2->position = Vector2Subtract(obj2->position, Vector2Scale(n, overlap / 2));
+                }
             }
         }
     }

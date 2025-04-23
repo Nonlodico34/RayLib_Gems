@@ -1,6 +1,6 @@
 #pragma once
 #include "modules/imports.h"
-#include "utils.h"
+#include "spark.h"
 
 #define REGULAR_SCALE 3.1f
 #define BIG_SCALE 4.f
@@ -9,7 +9,7 @@ class Item
 {
 public:
     Item(string type);
-    void Update(bool picked);
+    void Update(bool picked, vector<Spark *> &sparks);
     void Draw() const;
     void DrawShadow() const;
     void PickAnimation();
@@ -29,8 +29,8 @@ public:
 Item::Item(string type)
 {
     this->type = type;
-    this->position.x = Random(0, GetScreenWidth());
-    this->position.y = Random(0, GetScreenHeight());
+    this->position.x = RandomI(0, GetScreenWidth());
+    this->position.y = RandomI(0, GetScreenHeight());
     this->speed.x = 0;
     this->speed.y = 0;
     this->angle = 0;
@@ -41,7 +41,7 @@ Item::Item(string type)
     this->verlet = new VerletObject(position, this->texture->width * REGULAR_SCALE / 2.f);
 }
 
-void Item::Update(bool picked)
+void Item::Update(bool picked, vector<Spark *> &sparks)
 {
     // Vai alla posizione del mouse
     if (picked)
@@ -60,6 +60,17 @@ void Item::Update(bool picked)
             verlet->Reset(position);
         }
         targetScale = REGULAR_SCALE;
+
+        /*
+        if (RandomI(1, 100) < 5)
+        {
+            Vector2 velocity = Vector2Subtract(verlet->position, position);
+            float pitch = (float)RandomI(100, 250) / 100.f;
+            float volume = pitch / 2.f * Vector2Length(velocity);
+            assetLoader.playSoundPro("gem_sound_" + to_string(RandomI(4, 5)), pitch, volume);
+        }
+        */
+
         position = verlet->position;
     }
 
@@ -75,6 +86,13 @@ void Item::Update(bool picked)
 
     float scaleDifference = targetScale - scale;
     scale += scaleDifference * 10.0f * GetFrameTime();
+
+    if (RandomI(1, 500) == 1)
+    {
+        Vector2 posCopy = {this->position.x, this->position.y};
+        float maxRandOffest = this->texture->width * REGULAR_SCALE / 2.f;
+        sparks.push_back(new Spark(posCopy, maxRandOffest, assetLoader.getTexture("spark")));
+    }
 }
 
 void Item::Draw() const
@@ -102,9 +120,9 @@ void Item::DrawShadow() const
 
 void Item::PickAnimation()
 {
-    float pitch = (float)Random(100, 250) / 100.f;
+    float pitch = RandomF(1.f, 2.5f);
     float volume = pitch / 2.f;
-    assetLoader.playSoundPro("gem_sound_" + to_string(Random(4, 5)), pitch, volume);
+    assetLoader.playSoundPro("gem_sound_" + to_string(RandomI(4, 5)), pitch, volume);
 
-    targetAngle = Random(-30, 30);
+    targetAngle = RandomI(-30, 30);
 }

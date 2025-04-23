@@ -35,6 +35,7 @@ void AssetLoader::loadTextures()
     texturesMap["rose_quartz"] = LoadTexture("assets/rose_quartz.png");
 
     texturesMap["stone"] = LoadTexture("assets/stone.png");
+    texturesMap["spark"] = LoadTexture("assets/spark.png");
 }
 
 void AssetLoader::loadSounds()
